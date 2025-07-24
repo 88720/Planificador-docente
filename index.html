@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificador Docente PBA</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%A7%91%E2%80%8D%F0%9F%8F%AB%3C/text%3E%3C/svg%3E">
+    
+    <style>
+        /* --- Estilos CSS --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #e9eff5; /* Un azul claro muy suave */
+            color: #333;
+            line-height: 1.6;
+            /* No hay errores en el CSS del body, los estilos son válidos. */
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Sombra más pronunciada */
+            max-width: 800px;
+            margin: 30px auto;
+            border: 1px solid #dcdcdc; /* Borde sutil */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header img {
+            width: 80px; /* Tamaño del logo */
+            height: auto;
+            margin-bottom: 15px;
+            background-color: #f1cccc; /* Fondo para el logo */
+            padding: 10px;
+            border-radius: 50%; /* Borde circular */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            /* Asegúrate de que el SVG use solo stroke para el contorno si el fill es el mismo que el background-color */
+            /* O que el SVG tenga su propio fill blanco para verse como un "guardapolvo blanco" sobre el fondo del círculo */
+        }
+
+        h1 {
+            color: #2c3e50; /* Azul oscuro para títulos */
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+        }
+
+        p {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+            font-size: 1em;
+        }
+
+        input, textarea, select {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #b0c4de;
+            border-radius: 6px;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .checkbox-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8faff;
+            border-radius: 8px;
+            border: 1px solid #e0e6ec;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .checkbox-group input {
+            margin-right: 10px;
+            width: auto;
+            margin-bottom: 0;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 25px auto 0;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        /* Ocultamos las secciones de prompt y botones de copiar/pegar */
+        #promptOutput, #pasteButtonContainer {
+            display: none !important;
+        }
+
+        #iaExplanation {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #777;
+            text-align: center; /* Centrar el texto de la explicación */
+        }
+
+        /* --- ESTILOS PARA LA RESPUESTA DE LA IA --- */
+        #loadingMessage {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #007bff;
+            display: none; /* Oculto por defecto */
+        }
+
+        #geminiResponseContainer {
+            background-color: #e6f7ff; /* Un azul muy claro */
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border: 1px solid #91d5ff; /* Borde azul */
+            display: none; /* Oculto por defecto */
+        }
+
+        #geminiResponseContainer h3 {
+            color: #0056b3; /* Azul más oscuro */
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        #geminiResponseText {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap; /* Mantiene saltos de línea y espacios */
+            font-family: 'Georgia', serif; /* Una fuente más legible para el texto largo */
+            font-size: 1em;
+            line-height: 1.8;
+            word-wrap: break-word;
+            max-height: 600px; /* Limita la altura para evitar desbordamientos */
+            overflow-y: auto; /* Agrega scroll si el contenido es demasiado largo */
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+
+        #errorMessage {
+            color: red;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FFFFFF' stroke='%23333333' stroke-width='1.5' d='M12 2L6 7V22H18V7L12 2ZM8 10H10V12H8V10Z'/%3E%3C/svg%3E" alt="Guardapolvo Blanco Logo Simple">
+            <h1>Planificador Docente PBA</h1>
+            <p>Completa los siguientes campos para generar un borrador de tu planificación o actividad. La IA Gemini generará la respuesta directamente aquí, basada en los Diseños Curriculares vigentes de la provincia de Buenos Aires. ¡Que tengas buenas clases!</p>
+        </header>
+
+        <form id="planificacionForm">
+            <label for="nivel">Nivel Educativo:</label>
+            <select id="nivel">
+                <option value="Primaria">Primaria</option>
+                <option value="Secundaria">Secundaria</option>
+                <option value="Inicial">Inicial</option>
+                <option value="Superior">Superior</option>
+                <option value="Modalidades">Modalidades (especificar en "Características")</option>
+            </select>
+
+            <label for="gradoAnio">Grado/Año/Curso:</label>
+            <input type="text" id="gradoAnio" placeholder="Ej: 3ro, 5to, Ciclo Básico, 6to Año">
+
+            <label for="materia">Materia/Área:</label>
+            <input type="text" id="materia" placeholder="Ej: Lengua y Literatura, Matemática, Ciencias Naturales, Educación Física">
+
+            <label for="temaEspecifico">Tema Específico (según el Diseño Curricular o tu plan):</label>
+            <input type="text" id="temaEspecifico" placeholder="Ej: La función cuadrática, El cuento realista, Ciclo del agua, La Revolución de Mayo">
+
+            <label for="caracteristicasEstudiantes">Características de los Estudiantes (¡CRUCIAL para la adaptación!):</label>
+            <textarea id="caracteristicasEstudiantes" rows="4" placeholder="Ej: Grupo heterogéneo con algunos estudiantes con dificultades de atención; Les gusta trabajar en grupo; Intereses por el fútbol y la naturaleza; Requieren actividades con movimiento; Hay un estudiante con TEA que necesita apoyos visuales."></textarea>
+
+            <label for="localidad">Localidad de la escuela:</label>
+            <input type="text" id="localidad" placeholder="Ej: Chascomús, La Plata, Mar del Plata">
+
+            <label>¿Qué aspectos de la planificación necesitas?</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" class="aspecto" value="Objetivo de Aprendizaje" checked> Objetivo de Aprendizaje (del Diseño Curricular)</label>
+                <label><input type="checkbox" class="aspecto" value="Contenidos Clave" checked> Contenidos Clave (del Diseño Curricular)</label>
+                <label><input type="checkbox" class="aspecto" value="Actividad de Inicio"> Actividad de Inicio</label>
+                <label><input type="checkbox" class="aspecto" value="Actividad de Desarrollo"> Actividad de Desarrollo</label>
+                <label><input type="checkbox" class="aspecto" value="Actividad de Cierre"> Actividad de Cierre</label>
+                <label><input type="checkbox" class="aspecto" value="Recursos Didácticos"> Recursos Didácticos (sugerencias básicas)</label>
+                <label><input type="checkbox" class="aspecto" value="Criterios de Evaluación"> Criterios de Evaluación (formativa)</label>
+                <label><input type="checkbox" class="aspecto" value="Adecuaciones Curriculares"> Sugerencias de Adecuaciones Curriculares (si aplicara)</label>
+            </div>
+
+            <button type="submit">Generar Planificación con IA</button>
+        </form>
+
+        <div id="loadingMessage">Cargando respuesta de la IA... esto puede tardar un momento.</div>
+        <div id="errorMessage" style="display: none;"></div>
+
+        <div id="geminiResponseContainer">
+            <h3>Respuesta de la IA Gemini:</h3>
+            <pre id="geminiResponseText"></pre>
+        </div>
+
+        <div id="promptOutput" style="display: none;">
+            <h3>Prompt generado (para copiar a otras IAs si lo deseas):</h3>
+            <pre id="generatedPrompt"></pre>
+            <div id="pasteButtonContainer">
+                <button id="copyButton" onclick="copyToClipboard()">Copiar al Portapapeles</button>
+            </div>
+            <div id="iaExplanation">
+                <p>También podés utilizar este *prompt* en **cualquier otra IA** de tu preferencia. Solo asegurate de proporcionarle los documentos curriculares y normativas relevantes de la Provincia de Buenos Aires para que las respuestas sean contextualizadas y precisas.</p>
+            </div>
+            <div id="successMessage" class="success-message">¡Copiado con éxito!</div>
+        </div>
+
+    </div>
+
+    <script>
+        // *** ¡MUY IMPORTANTE! ***
+        // REEMPLAZA ESTA URL CON LA URL DE TU WEBHOOK PERSONALIZADO DE MAKE.
+        // Cópiala directamente desde el módulo "Webhooks - Custom webhook" en tu escenario de Make.
+        const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/6259sky4lhjjulou6sw4wedvdl4h4myd'; // <--- ¡CAMBIA ESTO!
+
+        // Referencias a elementos HTML
+        const planificacionForm = document.getElementById('planificacionForm');
+        const nivelSelect = document.getElementById('nivel');
+        const gradoAnioInput = document.getElementById('gradoAnio');
+        const materiaInput = document.getElementById('materia');
+        const temaEspecificoInput = document.getElementById('temaEspecifico');
+        const caracteristicasEstudiantesTextarea = document.getElementById('caracteristicasEstudiantes');
+        const localidadInput = document.getElementById('localidad');
+        const aspectoCheckboxes = document.querySelectorAll('.aspecto');
+
+        const loadingMessageDiv = document.getElementById('loadingMessage');
+        const errorMessageDiv = document.getElementById('errorMessage');
+        const geminiResponseContainerDiv = document.getElementById('geminiResponseContainer');
+        const geminiResponseTextPre = document.getElementById('geminiResponseText');
+
+        // Mapeo de aspectos seleccionados para el prompt (se mantiene igual)
+        const getPromptAspect = (clave) => {
+            const mapping = {
+                "Objetivo de Aprendizaje": "Objetivo de Aprendizaje",
+                "Contenidos Clave": "Contenidos Clave",
+                "Actividad de Inicio": "Actividad de Inicio",
+                "Actividad de Desarrollo": "Actividad de Desarrollo",
+                "Actividad de Cierre": "Actividad de Cierre",
+                "Recursos Didácticos": "Recursos Didácticos",
+                "Criterios de Evaluación": "Criterios de Evaluación",
+                "Adecuaciones Curriculares": "Sugerencias de Adecuaciones Curriculares"
+            };
+            return mapping[clave] || '';
+        };
+
+        // --- FUNCION PRINCIPAL: ENVIAR SOLICITUD A MAKE ---
+        planificacionForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Evitar que el formulario se envíe de la forma tradicional y recargue la página.
+
+            // 1. Ocultar mensajes anteriores y mostrar mensaje de carga
+            geminiResponseContainerDiv.style.display = 'none';
+            errorMessageDiv.style.display = 'none';
+            loadingMessageDiv.style.display = 'block';
+            geminiResponseTextPre.textContent = ''; // Limpiar respuesta anterior
+
+            // 2. Capturar los datos del formulario
+            const nivel = nivelSelect.value.trim();
+            const gradoAnio = gradoAnioInput.value.trim();
+            const materia = materiaInput.value.trim();
+            const temaEspecifico = temaEspecificoInput.value.trim();
+            const caracteristicasEstudiantes = caracteristicasEstudiantesTextarea.value.trim();
+            const localidad = localidadInput.value.trim();
+
+            const aspectosSeleccionados = Array.from(aspectoCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+
+            const resultadosFormateados = aspectosSeleccionados.length > 0
+                ? "Necesito: " + aspectosSeleccionados.map(getPromptAspect).join(', ')
+                : 'No se especificaron aspectos. Por favor, selecciona al menos uno.';
+
+            // 3. Construir el prompt para la IA (este prompt se enviará a Make, quien lo pasará a la IA)
+            const promptAI = `
+**Rol:** Asistente pedagógico experto de la Provincia de Buenos Aires.
+**Tarea:** Genera una planificación o actividades detalladas para el aula, adaptadas a los siguientes parámetros.
+**Contexto crucial:** Utiliza EXCLUSIVAMENTE como base para tu respuesta los diseños curriculares, las normativas vigentes y los recursos pedagógicos propios de la educación de la Provincia de Buenos Aires (PBA). Si la información proporcionada no es suficiente para basarse en documentos de PBA, indica claramente la limitación. En el caso de nivel inicial, debes usar el diseño curricular del año 2022, y en el caso del nivel primario, los diseños curriculares del año 2018.
+---
+**Parámetros de la Solicitud:**
+Nivel Educativo: ${nivel || 'No especificado'}
+Grado/Año/Curso: ${gradoAnio || 'No especificado'}
+Materia/Área: ${materia || 'No especificado'}
+Tema Específico: ${temaEspecifico || 'No especificado'}
+Características de los Estudiantes: ${caracteristicasEstudiantes || 'No especificadas'}
+Localidad de la escuela: ${localidad || 'No especificada'}
+---
+**Aspectos de la Planificación requeridos:**
+${resultadosFormateados}.
+---
+**Instrucciones adicionales para la IA:**
+* Sé conciso, práctico y directo.
+* Adapta el lenguaje y las actividades para el nivel educativo y las características específicas de los estudiantes en la localidad dada.
+* Si algún aspecto de la planificación no puede ser generado con base en los documentos curriculares de PBA (por ejemplo, si necesitas más información contextual), indícalo claramente.
+* Presenta la información de manera clara, utilizando viñetas, numeración o subtítulos cuando sea apropiado.
+* Mantén un tono profesional y colaborativo.
+            `.trim(); // .trim() para quitar espacios extra al inicio/fin
+
+            // 4. Preparar los datos para enviar a Make (formato JSON)
+            const requestBodyForMake = {
+                nivel: nivel,
+                grado_anio: gradoAnio,
+                materia: materia,
+                tema_especifico: temaEspecifico,
+                caracteristicas_estudiantes: caracteristicasEstudiantes,
+                localidad: localidad,
+                aspectos_seleccionados: aspectosSeleccionados, // Envía el array de aspectos
+                prompt_ia: promptAI // Envía el prompt completo a Make para que lo use con la IA
+            };
+
+            try {
+                // 5. Enviar la petición POST al Webhook de Make
+                const response = await fetch(MAKE_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBodyForMake) // Convertir el objeto JS a JSON string
+                });
+
+                // Ocultar mensaje de carga
+                loadingMessageDiv.style.display = 'none';
+
+                if (!response.ok) {
+                    const errorDetails = await response.json();
+                    throw new Error(`Error en la solicitud: ${response.status} - ${errorDetails.message || JSON.stringify(errorDetails)}`);
+                }
+
+                const data = await response.json(); // Esperar la respuesta JSON de Make
+
+                // 6. Mostrar la respuesta de Make (que es el material de la IA)
+                if (data.status === 'success' && data.material_generado) {
+                    geminiResponseTextPre.textContent = data.material_generado;
+                    geminiResponseContainerDiv.style.display = 'block';
+                    geminiResponseContainerDiv.scrollIntoView({ behavior: 'smooth' }); // Desplazarse a la respuesta
+                } else {
+                    errorMessageDiv.textContent = `no devolvió una respuesta válida. ${data.message || ''}`;
+                    errorMessageDiv.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error("Error de comunicación:", error);
+                loadingMessageDiv.style.display = 'none';
+                errorMessageDiv.textContent = `Hubo un error al procesar tu solicitud: ${error.message}. Por favor, inténtalo de nuevo.`;
+                errorMessageDiv.style.display = 'block';
+            }
+        });
+
+        // --- Funciones para copiar al portapapeles (ocultas pero funcionales si se reactivan) ---
+        // Se mantienen por si quieres reactivar la visualización del prompt generado para copiar.
+        // const promptOutputDiv = document.getElementById('promptOutput'); // Ya definido arriba
+        // const generatedPromptPre = document.getElementById('generatedPrompt'); // Ya definido arriba
+        // const pasteButtonContainer = document.getElementById('pasteButtonContainer'); // Ya definido arriba
+        // const successMessage = document.getElementById('successMessage'); // Ya definido arriba
+
+        function copyToClipboard() {
+            const promptText = generatedPromptPre.textContent;
+            navigator.clipboard.writeText(promptText).then(() => {
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            }).catch(err => {
+                console.error('Error al copiar el texto: ', err);
+                alert('No se pudo copiar el texto automáticamente. Por favor, selecciona y cópialo manualmente (Ctrl+C o Cmd+C).');
+            });
+        }
+    </script>
+</body>
+</html>
