@@ -81,20 +81,20 @@
         input:focus, textarea:focus, select:focus {
             border-color: #007bff;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            box-shadow: 0 0 0 3 px rgba (0, 123, 255, 0.25);
         }
 
         textarea {
             resize: vertical;
-            min-height: 80px;
+            min-height: 80 px;
         }
 
         .checkbox-group {
-            margin-bottom: 25px;
-            padding: 15px;
+            margin-bottom: 25 px;
+            padding: 15 px;
             background-color: #f8faff;
-            border-radius: 8px;
-            border: 1px solid #e0e6ec;
+            border-radius: 8 px;
+            border: 1 px solid #e0e6ec;
         }
 
         .checkbox-group label {
@@ -106,7 +106,7 @@
         }
 
         .checkbox-group input {
-            margin-right: 10px;
+            margin-right: 10 px;
             width: auto;
             margin-bottom: 0;
         }
@@ -114,32 +114,32 @@
         button {
             background-color: #28a745;
             color: white;
-            padding: 14px 25px;
+            padding: 14 px 25 px;
             border: none;
-            border-radius: 8px;
+            border-radius: 8 px;
             cursor: pointer;
-            font-size: 1.1em;
+            font-size: 1.1 em;
             font-weight: bold;
             display: block;
-            width: 100%;
-            max-width: 300px;
-            margin: 25px auto 0;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100 %;
+            max-width: 300 px;
+            margin: 25 px auto 0;
+            transition: background-color 0.3 s ease, transform 0.2 s ease;
         }
 
         button:hover {
             background-color: #218838;
-            transform: translateY(-2px);
+            transform: translate Y (-2 px);
         }
 
         /* Ocultamos las secciones de prompt y botones de copiar/pegar */
         #promptOutput, #pasteButtonContainer {
-            display: none !important;
+            display: none;
         }
 
         #iaExplanation {
-            margin-top: 20px;
-            font-size: 0.9em;
+            margin-top: 20 px;
+            font-size: 0.9 em;
             color: #777;
             text-align: center; /* Centrar el texto de la explicación */
         }
@@ -267,7 +267,7 @@
         // *** ¡MUY IMPORTANTE! ***
         // REEMPLAZA ESTA URL CON LA URL DE TU WEBHOOK PERSONALIZADO DE MAKE.
         // Cópiala directamente desde el módulo "Webhooks - Custom webhook" en tu escenario de Make.
-        const MAKE_WEBHOOK_URL ='https://hook.us2.make.com/6259sky4lhjjulou6sw4wedvdl4h4myd'; // <--- ¡CAMBIA ESTO!
+        const MAKE_WEBHOOK_URL =https://hook.us2.make.com/6259sky4lhjjulou6sw4wedvdl4h4myd; // <--- ¡CAMBIA ESTO!
 
         // Referencias a elementos HTML
         const planificacionForm = document.getElementById('planificacionForm');
