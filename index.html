@@ -383,12 +383,28 @@ ${resultadosFormateados}.
                 const data = await response.json(); // Esperar la respuesta JSON de Make
 
                 // 6. Mostrar la respuesta de Make (que es el material de la IA)
-                if (data.status === 'success' && data.material_generado) {
-                    geminiResponseTextPre.textContent = data.material_generado;
+                if (data.material_generado) {
+                    // Reemplazar saltos de línea (\n) con etiquetas <br> para HTML
+                    let formattedText = data.material_generado.replace(/\\n/g, '<br>');
+                    
+                    // Opcional: Reemplazar tabulaciones (\t) con espacios no separables (si fuera necesario)
+                    formattedText = formattedText.replace(/\\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;'); // 4 espacios no separables
+
+                    // Opcional: Convertir markdown básico (negrita, encabezados) a HTML
+                    // Esto es más complejo, pero si Gemini te devuelve markdown, es útil.
+                    // Ejemplo para negritas (simplificado, para otros elementos markdown sería más extenso):
+                    formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    formattedText = formattedText.replace(/### (.*)/g, '<h3>$1</h3>'); // Para h3
+                    formattedText = formattedText.replace(/---\n/g, '<hr>'); // Para líneas divisorias
+
+                    // Asignar el HTML formateado al elemento
+                    geminiResponseTextPre.innerHTML = formattedText; // ¡CAMBIO CLAVE: innerHTML!
+                    
                     geminiResponseContainerDiv.style.display = 'block';
                     geminiResponseContainerDiv.scrollIntoView({ behavior: 'smooth' }); // Desplazarse a la respuesta
+                    errorMessageDiv.style.display = 'none'; // Asegurarse de ocultar cualquier error previo
                 } else {
-                    errorMessageDiv.textContent = `no devolvió una respuesta válida. ${data.message || ''}`;
+                    errorMessageDiv.textContent = `Make no devolvió una planificación válida.`;
                     errorMessageDiv.style.display = 'block';
                 }
 
