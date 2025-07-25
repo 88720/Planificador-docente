@@ -362,7 +362,7 @@ ${resultadosFormateados}.
                 prompt_ia: promptAI // Envía el prompt completo a Make para que lo use con la IA
             };
 
-           try {
+            try {
                 // 5. Enviar la petición POST al Webhook de Make
                 const response = await fetch(MAKE_WEBHOOK_URL, {
                     method: 'POST',
@@ -376,35 +376,21 @@ ${resultadosFormateados}.
                 loadingMessageDiv.style.display = 'none';
 
                 if (!response.ok) {
-                    // Si la respuesta no es OK (ej. 500, 404), intentar leerla como texto
-                    const errorText = await response.text(); // <-- CAMBIO AQUÍ: Leer como texto
-                    throw new Error(`Error en la solicitud: ${response.status} - ${errorText || 'Error desconocido'}`);
+                    const errorDetails = await response.json();
+                    throw new Error(`Error en la solicitud: ${response.status} - ${errorDetails.message || JSON.stringify(errorDetails)}`);
                 }
 
-                // *** CAMBIO CLAVE AQUÍ: Leer la respuesta SIEMPRE como texto ***
-                const dataText = await response.text(); 
-                
-                // Asumimos que si Make fue exitoso, el texto es la planificación
-                // Si esperas un JSON con una estructura específica, este "truco" podría no ser suficiente
-                // para extraer solo "material_generado". Asumimos que todo el texto es la planificación.
-                
-                // 6. Mostrar la respuesta de Make (que ahora esperamos que sea la planificación en texto plano)
-                if (dataText) { // Si hay algún texto
-                    geminiResponseTextPre.textContent = dataText;
+                const data = await response.json(); // Esperar la respuesta JSON de Make
+
+                // 6. Mostrar la respuesta de Make (que es el material de la IA)
+                if (data.status === 'success' && data.material_generado) {
+                    geminiResponseTextPre.textContent = data.material_generado;
                     geminiResponseContainerDiv.style.display = 'block';
                     geminiResponseContainerDiv.scrollIntoView({ behavior: 'smooth' }); // Desplazarse a la respuesta
-                    errorMessageDiv.style.display = 'none'; // Asegurarse de ocultar cualquier error previo
                 } else {
-                    errorMessageDiv.textContent = `Make no devolvió una respuesta válida o el texto está vacío.`;
+                    errorMessageDiv.textContent = `no devolvió una respuesta válida. ${data.message || ''}`;
                     errorMessageDiv.style.display = 'block';
                 }
-
-            } catch (error) {
-                console.error("Error de comunicación:", error);
-                loadingMessageDiv.style.display = 'none';
-                errorMessageDiv.textContent = `Hubo un error al procesar tu solicitud: ${error.message}. Por favor, inténtalo de nuevo.`;
-                errorMessageDiv.style.display = 'block';
-            }
 
             } catch (error) {
                 console.error("Error de comunicación:", error);
