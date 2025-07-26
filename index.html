@@ -15,7 +15,6 @@
             background-color: #e9eff5; /* Un azul claro muy suave */
             color: #333;
             line-height: 1.6;
-            /* No hay errores en el CSS del body, los estilos son válidos. */
         }
 
         .container {
@@ -41,8 +40,6 @@
             padding: 10px;
             border-radius: 50%; /* Borde circular */
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            /* Asegúrate de que el SVG use solo stroke para el contorno si el fill es el mismo que el background-color */
-            /* O que el SVG tenga su propio fill blanco para verse como un "guardapolvo blanco" sobre el fondo del círculo */
         }
 
         h1 {
@@ -148,7 +145,7 @@
         #loadingMessage {
             text-align: center;
             margin-top: 20px;
-            font-size: 1.1em;
+            font-size: 1em;
             color: #007bff;
             display: none; /* Oculto por defecto */
         }
@@ -166,10 +163,10 @@
             color: #0056b3; /* Azul más oscuro */
             margin-top: 0;
             margin-bottom: 15px;
-            font-size: 1.3em;
+            font-size: 1em;
         }
 
-        #geminiResponseText {
+        #geminiResponseText { /* Originalmente era #geminiResponseTextPre, ajustado a #geminiResponseText */
             background-color: #ffffff;
             padding: 15px;
             border-radius: 6px;
@@ -183,15 +180,89 @@
             border: 1px solid #ccc;
             text-align: left;
         }
+    /* ... (todos tus estilos CSS anteriores, antes de la sección de la IA) ... */
 
-        #errorMessage {
-            color: red;
-            text-align: center;
-            margin-top: 20px;
-            font-weight: bold;
-            display: none;
-        }
-    </style>
+    /* --- ESTILOS PARA LA RESPUESTA DE LA IA --- */
+    #loadingMessage {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 1em;
+        color: #007bff;
+        display: none; /* Oculto por defecto */
+    }
+
+    #geminiResponseContainer {
+        background-color: #e6f7ff; /* Un azul muy claro */
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 30px;
+        border: 1px solid #91d5ff; /* Borde azul */
+        display: none; /* Oculto por defecto */
+    }
+
+    #geminiResponseContainer h3 { /* Este es para el título "Respuesta de la IA Gemini:" */
+        color: #0056b3; /* Azul más oscuro */
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1em; /* Lo he ajustado a 1em para que sea más similar al texto base si lo deseas, o déjalo en 1.3em si quieres que este título sea un poco más grande. */
+    }
+
+    #geminiResponseText { /* Este es el div que contiene el texto formateado de la IA */
+        background-color: #ffffff;
+        padding: 15px;
+        border-radius: 6px;
+        white-space: pre-wrap; /* Mantiene saltos de línea y espacios */
+        font-family: 'Georgia', serif; /* Una fuente más legible para el texto largo */
+        font-size: 1.1em; /* **Este es el tamaño base que quieres para TODO el texto de la IA** */
+        line-height: 1.8;
+        word-wrap: break-word;
+        max-height: 600px; /* Limita la altura para evitar desbordamientos */
+        overflow-y: auto; /* Agrega scroll si el contenido es demasiado largo */
+        border: 1px solid #ccc;
+        text-align: left;
+    }
+
+    /* *** AÑADE ESTO (FUERA DE OTRAS REGLAS): Reglas para uniformar los encabezados dentro de la respuesta de la IA *** */
+    #geminiResponseText h1,
+    #geminiResponseText h2,
+    #geminiResponseText h3,
+    #geminiResponseText h4,
+    #geminiResponseText h5,
+    #geminiResponseText h6 {
+        font-size: 1.1em; /* El mismo tamaño que el texto normal de la respuesta */
+        font-weight: bold; /* Mantén la negrita para que se sigan viendo como títulos */
+        margin-top: 1em; /* Espacio superior para separarlos del párrafo anterior */
+        margin-bottom: 0.5em; /* Espacio inferior */
+        color: #333; /* O el color que desees para los títulos internos */
+    }
+    /* -------------------------------------------------------------------------- */
+
+    /* Estilos para el botón de copiar respuesta */
+    .copy-button {
+        background-color: #4CAF50; /* Un verde amigable */
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        margin-top: 15px; /* Para separarlo del texto */
+        transition: background-color 0.3s ease; /* Efecto suave al pasar el ratón */
+    }
+
+    .copy-button:hover {
+        background-color: #45a049; /* Un verde más oscuro al pasar el ratón */
+    }
+
+    #errorMessage {
+        color: red;
+        text-align: center;
+        margin-top: 20px;
+        font-weight: bold;
+        display: none;
+    }
+</style>
+    
 </head>
 <body>
     <div class="container">
@@ -246,7 +317,9 @@
 
         <div id="geminiResponseContainer">
             <h3>Respuesta de la IA Gemini:</h3>
-            <pre id="geminiResponseText"></pre>
+            <div id="geminiResponseText" class="response-box">
+                </div>
+            <button id="copyResponseBtn" class="copy-button">Copiar respuesta</button>
         </div>
 
         <div id="promptOutput" style="display: none;">
@@ -282,7 +355,11 @@
         const loadingMessageDiv = document.getElementById('loadingMessage');
         const errorMessageDiv = document.getElementById('errorMessage');
         const geminiResponseContainerDiv = document.getElementById('geminiResponseContainer');
-        const geminiResponseTextPre = document.getElementById('geminiResponseText');
+        // Renombrado de geminiResponseTextPre a geminiResponseText para coincidir con el HTML
+        const geminiResponseText = document.getElementById('geminiResponseText'); 
+        
+        // *** NUEVA REFERENCIA AL BOTÓN DE COPIAR ***
+        const copyResponseBtn = document.getElementById('copyResponseBtn');
 
         // Mapeo de aspectos seleccionados para el prompt (se mantiene igual)
         const getPromptAspect = (clave) => {
@@ -307,7 +384,7 @@
             geminiResponseContainerDiv.style.display = 'none';
             errorMessageDiv.style.display = 'none';
             loadingMessageDiv.style.display = 'block';
-            geminiResponseTextPre.textContent = ''; // Limpiar respuesta anterior
+            geminiResponseText.innerHTML = ''; // Limpiar respuesta anterior (innerHTML porque ahora insertamos HTML)
 
             // 2. Capturar los datos del formulario
             const nivel = nivelSelect.value.trim();
@@ -381,9 +458,9 @@ ${resultadosFormateados}.
                 }
 
                 const data = await response.json(); // Esperar la respuesta JSON de Make
-
+                
                 // 6. Mostrar la respuesta de Make (que es el material de la IA)
-               if (data.material_generado) {
+                if (data.material_generado) {
                     // Reemplazar saltos de línea (\n) con etiquetas <br> para HTML
                     let formattedText = data.material_generado.replace(/\\n/g, '<br>');
                     
@@ -392,13 +469,14 @@ ${resultadosFormateados}.
 
                     // Opcional: Convertir markdown básico (negrita, encabezados) a HTML
                     // Esto es más complejo, pero si Gemini te devuelve markdown, es útil.
-                    // Ejemplo para negritas (simplificado, para otros elementos markdown sería más extenso):
-                    formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Negritas
                     formattedText = formattedText.replace(/### (.*)/g, '<h3>$1</h3>'); // Para h3
+                    formattedText = formattedText.replace(/## (.*)/g, '<h2>$1</h2>'); // Para h2 (si Gemini lo usa)
+                    formattedText = formattedText.replace(/# (.*)/g, '<h1>$1</h1>'); // Para h1 (si Gemini lo usa)
                     formattedText = formattedText.replace(/---\n/g, '<hr>'); // Para líneas divisorias
-
+                    
                     // Asignar el HTML formateado al elemento
-                    geminiResponseTextPre.innerHTML = formattedText; // ¡CAMBIO CLAVE: innerHTML!
+                    geminiResponseText.innerHTML = formattedText; // Ahora usamos geminiResponseText y innerHTML
                     
                     geminiResponseContainerDiv.style.display = 'block';
                     geminiResponseContainerDiv.scrollIntoView({ behavior: 'smooth' }); // Desplazarse a la respuesta
@@ -416,23 +494,47 @@ ${resultadosFormateados}.
             }
         });
 
-        // --- Funciones para copiar al portapapeles (ocultas pero funcionales si se reactivan) ---
-        // Se mantienen por si quieres reactivar la visualización del prompt generado para copiarlo.
-        // const promptOutputDiv = document.getElementById('promptOutput'); // Ya definido arriba
-        // const generatedPromptPre = document.getElementById('generatedPrompt'); // Ya definido arriba
-        // const pasteButtonContainer = document.getElementById('pasteButtonContainer'); // Ya definido arriba
-        // const successMessage = document.getElementById('successMessage'); // Ya definido arriba
+        // *** LÓGICA DEL BOTÓN DE COPIAR ***
+        copyResponseBtn.addEventListener('click', async () => {
+            // Tomar el texto desde el elemento donde se muestra la respuesta
+            // Usamos textContent para obtener solo el texto plano, sin las etiquetas <br> o HTML de formato
+            const textToCopy = geminiResponseText.textContent; 
 
-        function copyToClipboard() {
-            const promptText = generatedPromptPre.textContent;
-            navigator.clipboard.writeText(promptText).then(() => {
-                successMessage.style.display = 'block';
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 3000);
-            }).catch(err => {
+            try {
+                // Usa la API del Portapapeles (Clipboard API)
+                await navigator.clipboard.writeText(textToCopy);
+                // Opcional: Mostrar una confirmación al usuario
+                alert('¡Planificación copiada al portapapeles!');
+                // Puedes agregar feedback visual aquí, como cambiar el texto del botón
+                // copyResponseBtn.textContent = '¡Copiado!';
+                // setTimeout(() => {
+                //     copyResponseBtn.textContent = 'Copiar respuesta';
+                // }, 2000); 
+
+            } catch (err) {
                 console.error('Error al copiar el texto: ', err);
-                alert('No se pudo copiar el texto automáticamente. Por favor, selecciona y cópialo manualmente (Ctrl+C o Cmd+C).');
+                alert('No se pudo copiar la respuesta automáticamente. Por favor, cópiala manualmente.');
+            }
+        });
+
+        // --- Funciones para copiar al portapapeles (ocultas pero funcionales si se reactivan) ---
+        // Se mantienen por si quieres reactivar la visualización del prompt generado para copiar.
+        // Las referencias a generatedPromptPre y successMessage deben estar definidas antes de esta función si la vas a usar.
+        // const generatedPromptPre = document.getElementById('generatedPrompt'); // Si no está definida arriba
+        // const successMessage = document.getElementById('successMessage'); // Si no está definida arriba
+        function copyToClipboard() {
+            const promptText = document.getElementById('generatedPrompt').textContent; // Asegúrate de que 'generatedPrompt' exista.
+            navigator.clipboard.writeText(promptText).then(() => {
+                const successMessage = document.getElementById('successMessage'); // Define aquí si no está globalmente
+                if (successMessage) {
+                    successMessage.style.display = 'block';
+                    setTimeout(() => {
+                        successMessage.style.display = 'none';
+                    }, 3000);
+                }
+            }).catch(err => {
+                console.error('Error al copiar el texto del prompt: ', err);
+                alert('No se pudo copiar el texto del prompt automáticamente. Por favor, selecciona y cópialo manualmente (Ctrl+C o Cmd+C).');
             });
         }
     </script>
